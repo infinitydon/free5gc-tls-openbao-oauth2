@@ -1,348 +1,86 @@
-{{- if .Values.subprov.enabled }}
-{{- $subscriberChunks := list }}
-{{- $chunkSize := 50 }}
-{{- $subscribers := list }}
-{{- $plmnid := .Values.subprov.plmnid | toString }}
-{{- $startImsi := .Values.subprov.startImsi }}
-{{- $startMsisdn := .Values.subprov.startMsisdn }}
-{{- $subscriberCount := .Values.subprov.subscriberCount }}
-
-{{- $subscribers := list }}
-{{- range $i := until (int $subscriberCount) }}
-  {{- $imsi := add $startImsi $i }}
-  {{- $msisdn := add $startMsisdn $i }}
-  {{- $subscriber := dict "plmnID" $plmnid "ueId" (printf "imsi-%d" $imsi) "msisdn" (printf "%d" $msisdn) }}
-  {{- $subscribers = append $subscribers $subscriber }}
-  {{- if or (eq (mod (add $i 1) $chunkSize) 0) (eq (add $i 1) (int $subscriberCount)) }}
-    {{- $subscriberChunks = append $subscriberChunks $subscribers }}
-    {{- $subscribers = list }}
-  {{- end }}
-{{- end }}
-
-{{- range $index, $chunk := $subscriberChunks }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: subscribers-data-{{ $index }}
-  annotations:
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-    argocd.argoproj.io/compare-options: IgnoreExtraneous  
-data:
-  subscribers.json: |
-    {
-      "subscribers": [
-        {{- range $i, $sub := $chunk }}
-        {
-          "plmnID": "{{ $sub.plmnID }}",
-          "ueId": "{{ $sub.ueId }}",
-          "AuthenticationSubscription": {
-            "authenticationManagementField": "8000",
-            "authenticationMethod": "5G_AKA",
-            "milenage": {
-              "op": {
-                "encryptionAlgorithm": 0,
-                "encryptionKey": 0,
-                "opValue": ""
-              }
-            },
-            "opc": {
-              "encryptionAlgorithm": 0,
-              "encryptionKey": 0,
-              "opcValue": "8e27b6af0e692e750f32667a3b14605d"
-            },
-            "permanentKey": {
-              "encryptionAlgorithm": 0,
-              "encryptionKey": 0,
-              "permanentKeyValue": "8baf473f2f8fd09487cccbd7097c6862"
-            },
-            "sequenceNumber": "000000000023"
-          },
-          "AccessAndMobilitySubscriptionData": {
-            "gpsis": [
-              "msisdn-{{ $sub.msisdn }}"
-            ],
-            "nssai": {
-              "defaultSingleNssais": [
-                {
-                  "sst": 1,
-                  "sd": "010203",
-                  "isDefault": true
-                },
-                {
-                  "sst": 1,
-                  "sd": "112233",
-                  "isDefault": true
-                }
-              ],
-              "singleNssais": []
-            },
-            "subscribedUeAmbr": {
-              "downlink": "2 Gbps",
-              "uplink": "1 Gbps"
-            }
-          },
-          "SessionManagementSubscriptionData": [
-            {
-              "singleNssai": {
-                "sst": 1,
-                "sd": "010203"
-              },
-              "dnnConfigurations": {
-                "internet": {
-                  "sscModes": {
-                    "defaultSscMode": "SSC_MODE_1",
-                    "allowedSscModes": [
-                      "SSC_MODE_2",
-                      "SSC_MODE_3"
-                    ]
-                  },
-                  "pduSessionTypes": {
-                    "defaultSessionType": "IPV4",
-                    "allowedSessionTypes": [
-                      "IPV4"
-                    ]
-                  },
-                  "sessionAmbr": {
-                    "uplink": "200 Mbps",
-                    "downlink": "100 Mbps"
-                  },
-                  "5gQosProfile": {
-                    "5qi": 9,
-                    "arp": {
-                      "priorityLevel": 8
-                    },
-                    "priorityLevel": 8
-                  }
-                },
-                "internet2": {
-                  "sscModes": {
-                    "defaultSscMode": "SSC_MODE_1",
-                    "allowedSscModes": [
-                      "SSC_MODE_2",
-                      "SSC_MODE_3"
-                    ]
-                  },
-                  "pduSessionTypes": {
-                    "defaultSessionType": "IPV4",
-                    "allowedSessionTypes": [
-                      "IPV4"
-                    ]
-                  },
-                  "sessionAmbr": {
-                    "uplink": "200 Mbps",
-                    "downlink": "100 Mbps"
-                  },
-                  "5gQosProfile": {
-                    "5qi": 9,
-                    "arp": {
-                      "priorityLevel": 8
-                    },
-                    "priorityLevel": 8
-                  }
-                }
-              }
-            },
-            {
-              "singleNssai": {
-                "sst": 1,
-                "sd": "112233"
-              },
-              "dnnConfigurations": {
-                "internet": {
-                  "sscModes": {
-                    "defaultSscMode": "SSC_MODE_1",
-                    "allowedSscModes": [
-                      "SSC_MODE_2",
-                      "SSC_MODE_3"
-                    ]
-                  },
-                  "pduSessionTypes": {
-                    "defaultSessionType": "IPV4",
-                    "allowedSessionTypes": [
-                      "IPV4"
-                    ]
-                  },
-                  "sessionAmbr": {
-                    "uplink": "200 Mbps",
-                    "downlink": "100 Mbps"
-                  },
-                  "5gQosProfile": {
-                    "5qi": 9,
-                    "arp": {
-                      "priorityLevel": 8
-                    },
-                    "priorityLevel": 8
-                  }
-                },
-                "internet2": {
-                  "sscModes": {
-                    "defaultSscMode": "SSC_MODE_1",
-                    "allowedSscModes": [
-                      "SSC_MODE_2",
-                      "SSC_MODE_3"
-                    ]
-                  },
-                  "pduSessionTypes": {
-                    "defaultSessionType": "IPV4",
-                    "allowedSessionTypes": [
-                      "IPV4"
-                    ]
-                  },
-                  "sessionAmbr": {
-                    "uplink": "200 Mbps",
-                    "downlink": "100 Mbps"
-                  },
-                  "5gQosProfile": {
-                    "5qi": 9,
-                    "arp": {
-                      "priorityLevel": 8
-                    },
-                    "priorityLevel": 8
-                  }
-                }
-              }
-            }
-          ],
-          "SmfSelectionSubscriptionData": {
-            "subscribedSnssaiInfos": {
-              "01010203": {
-                "dnnInfos": [
-                  {
-                    "dnn": "internet"
-                  },
-                  {
-                    "dnn": "internet2"
-                  }
-                ]
-              },
-              "01112233": {
-                "dnnInfos": [
-                  {
-                    "dnn": "internet"
-                  },
-                  {
-                    "dnn": "internet2"
-                  }
-                ]
-              }
-            }
-          },
-          "AmPolicyData": {
-            "subscCats": [
-              "free5gc"
-            ]
-          },
-          "SmPolicyData": {
-            "smPolicySnssaiData": {
-              "01010203": {
-                "snssai": {
-                  "sst": 1,
-                  "sd": "010203"
-                },
-                "smPolicyDnnData": {
-                  "internet": {
-                    "dnn": "internet"
-                  },
-                  "internet2": {
-                    "dnn": "internet2"
-                  }
-                }
-              },
-              "01112233": {
-                "snssai": {
-                  "sst": 1,
-                  "sd": "112233"
-                },
-                "smPolicyDnnData": {
-                  "internet": {
-                    "dnn": "internet"
-                  },
-                  "internet2": {
-                    "dnn": "internet2"
-                  }
-                }
-              }
-            }
-          },
-          "FlowRules": [
-            {
-              "snssai": "01010203",
-              "dnn": "internet",
-              "filter": "permit out 17 from 192.168.0.0/24 8000 to 60.60.0.0/24 ",
-              "precedence": 1,
-              "qfi": 5
-            }
-          ],
-          "QosFlows": [
-            {
-              "qfi": 5,
-              "5qi": 5,
-              "snssai": "01010203",
-              "dnn": "internet",
-              "gbrUL": "",
-              "gbrDL": "",
-              "mbrUL": "200 Mbps",
-              "mbrDL": "100 Mbps"
-            }
-          ]
-        }{{- if ne $i (sub (len $chunk) 1) }},{{ end }}
-        {{- end }}
-      ]
-    }
-{{- end }}
----
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ .Values.subprov.name }}
+  name: free5gc-subscriber-job
 spec:
   template:
     spec:
-      restartPolicy: Never
       initContainers:
       - name: wait-for-webui
-        image: {{ .Values.subprov.container.image }}
+        image: badouralix/curl-jq:latest
         command: ['sh', '-c']
         args:
         - |
           echo "Waiting for webui to come up first"
-          until curl -sSf http://{{ .Values.subprov.webuiService }}:{{ .Values.subprov.webuiPort }}; do 
+          until curl -sSf http://free5gc-webui:5000; do 
             echo "waiting for webui to come up first"
             sleep 2
           done
       containers:
-      - name: {{ .Values.subprov.container.name }}
-        image: {{ .Values.subprov.container.image }}
+      - name: subscriber-creator
+        image: badouralix/curl-jq:latest
         command: ["/bin/sh", "-c"]
         args:
-        - |
-          set -e
-          for i in $(seq 0 {{ sub (len $subscriberChunks) 1 }}); do
-            echo "Processing chunk $i"
-            jq -c '.subscribers[]' /etc/config/subscribers-$i.json | while read subscriber; do
-              imsi=$(echo $subscriber | jq -r '.ueId')
-              msisdn=$(echo $subscriber | jq -r '.AccessAndMobilitySubscriptionData.gpsis[0]')
-              plmnID=$(echo $subscriber | jq -r '.plmnID')
-              curl -s -X POST http://${{ .Values.subprov.envName }}:{{ .Values.subprov.portNumber }}/api/subscriber/$imsi/$plmnID -H "Token: {{ .Values.subprov.token }}" -d "$subscriber"
-              echo "Provisioned subscriber with PLMN: $plmnID, IMSI: $imsi and MSISDN: $msisdn"
-            done
-          done
-        env:
-        - name: {{ .Values.subprov.envName }}
-          valueFrom:
-            fieldRef:
-              fieldPath: {{ .Values.subprov.fieldPath }}  # To get the workernode IP
-        volumeMounts:
-        {{- range $index, $_ := $subscriberChunks }}
-        - name: subscribers-data-{{ $index }}
-          mountPath: /etc/config/subscribers-{{ $index }}.json
-          subPath: subscribers.json
-        {{- end }}
-      volumes:
-      {{- range $index, $_ := $subscriberChunks }}
-      - name: subscribers-data-{{ $index }}
-        configMap:
-          name: subscribers-data-{{ $index }}
-      {{- end }}
-{{- end }}
+        - |          
+          # Get auth token
+          TOKEN=$(curl -s -X POST http://free5gc-webui:5000/api/login \
+            -H "Content-Type: application/json" \
+            -d '{"username":"admin", "password":"free5gc"}' | jq -r .access_token)
+          
+          # Exit if token is empty
+          if [ -z "$TOKEN" ]; then
+            echo "Failed to get authentication token"
+            exit 1
+          fi
+          
+          # Function to create subscriber
+          create_subscriber() {
+            local imsi=$1
+            local opcValue=$2
+            local plmnID=$3
+            local sequenceNumber=$4
+            local permanentKeyValue=$5
+            local msisdn=$6
+            local sst=$7
+            local sd=$8
+            local uplink=$9
+            local downlink=${10}
+            local dnn=${11}
+            
+            # Check if IMSI already has the prefix
+            if [[ $imsi == imsi-* ]]; then
+              formatted_imsi=$imsi
+              imsi_value=${imsi#imsi-}  # Remove the prefix for URL
+            else
+              formatted_imsi="imsi-$imsi"
+              imsi_value=$imsi
+            fi
+            
+            echo "Creating subscriber with IMSI: $formatted_imsi"
+            
+            # Create well-formatted JSON
+            JSON_DATA="{\"plmnID\":\"$plmnID\",\"ueId\":\"$formatted_imsi\",\"AuthenticationSubscription\":{\"authenticationManagementField\":\"8000\",\"authenticationMethod\":\"5G_AKA\",\"opc\":{\"encryptionAlgorithm\":0,\"encryptionKey\":0,\"opcValue\":\"$opcValue\"},\"permanentKey\":{\"encryptionAlgorithm\":0,\"encryptionKey\":0,\"permanentKeyValue\":\"$permanentKeyValue\"},\"sequenceNumber\":\"$sequenceNumber\"},\"AccessAndMobilitySubscriptionData\":{\"gpsis\":[\"msisdn-$msisdn\"],\"nssai\":{\"defaultSingleNssais\":[{\"sst\":$sst,\"sd\":\"$sd\",\"isDefault\":true}],\"singleNssais\":[]},\"subscribedUeAmbr\":{\"uplink\":\"$uplink\",\"downlink\":\"$downlink\"}},\"SessionManagementSubscriptionData\":[{\"singleNssai\":{\"sst\":$sst,\"sd\":\"$sd\"},\"dnnConfigurations\":{\"$dnn\":{\"sscModes\":{\"defaultSscMode\":\"SSC_MODE_1\",\"allowedSscModes\":[\"SSC_MODE_2\",\"SSC_MODE_3\"]},\"pduSessionTypes\":{\"defaultSessionType\":\"IPV4\",\"allowedSessionTypes\":[\"IPV4\"]},\"sessionAmbr\":{\"uplink\":\"$uplink\",\"downlink\":\"$downlink\"},\"5gQosProfile\":{\"5qi\":8,\"arp\":{\"priorityLevel\":8},\"priorityLevel\":8}}}}],\"SmfSelectionSubscriptionData\":{\"subscribedSnssaiInfos\":{\"0$sst$sd\":{\"dnnInfos\":[{\"dnn\":\"$dnn\"}]}}},\"AmPolicyData\":{\"subscCats\":[\"free5gc\"]},\"SmPolicyData\":{\"smPolicySnssaiData\":{\"0$sst$sd\":{\"snssai\":{\"sst\":$sst,\"sd\":\"$sd\"},\"smPolicyDnnData\":{\"$dnn\":{\"dnn\":\"$dnn\"}}}}},\"QosFlows\":[{\"qfi\":8,\"5qi\":8,\"snssai\":\"0$sst$sd\",\"dnn\":\"$dnn\"}]}"
+            
+            # Save to file to avoid command line length issues
+            echo "$JSON_DATA" > /tmp/subscriber.json
+            
+            # Send the request using the file
+            curl -X POST "http://free5gc-webui:5000/api/subscriber/$formatted_imsi/$plmnID" \
+              -H "Content-Type: application/json" \
+              -H "Token: $TOKEN" \
+              -d @/tmp/subscriber.json
+            
+            echo "Subscriber $formatted_imsi creation completed"
+          }
+          
+          # Create subscribers from the list
+          {{- range .Values.subscribers }}
+          create_subscriber "{{ .imsi }}" "{{ .opcValue }}" "{{ .plmnID }}" "{{ .sequenceNumber }}" "{{ .permanentKeyValue }}" "{{ .msisdn }}" {{ .sst }} "{{ .sd }}" "{{ .uplink }}" "{{ .downlink }}" "{{ .dnn }}"
+          {{- end }}
+          
+          # List all subscribers
+          echo "Listing all subscribers:"
+          curl -s -X GET http://free5gc-webui:5000/api/subscriber \
+            -H "Content-Type: application/json" \
+            -H "Token: $TOKEN" | jq
+      restartPolicy: OnFailure

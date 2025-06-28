@@ -139,25 +139,38 @@ multus:
   n4dev: "ens21"
   n6dev: "ens21"
 
-subprov:
-  enabled: true
-  name: subprov
-  startImsi: 208930000000003
-  startMsisdn: 9000000003
-  subscriberCount: 500
-  plmnid: 20893
-  webuiService: "free5gc-webui"
-  webuiPort: 5000
-  container:
-    name: subprov
-    image: badouralix/curl-jq
-  volume:
-    name: config-volume
-    mountPath: /etc/config
-    jsonFile: sub-data.json
-  envName: NODE_IP
-  portNumber: 30500
-  restartPolicy: Never
-  fieldPath: status.hostIP
-  token: admin
-  configMapName: sub-data
+# Subscriber information
+subscribers:
+  - imsi: "208930000000003"
+    opcValue: "8e27b6af0e692e750f32667a3b14605d"
+    plmnID: "20893"
+    sequenceNumber: "16f3b3f70fc2"
+    permanentKeyValue: "8baf473f2f8fd09487cccbd7097c6862"
+    msisdn: "0900000001"
+    sst: 1
+    sd: "010203"
+    uplink: "200 Mbps"
+    downlink: "100 Mbps"
+    dnn: "internet"
+  - imsi: "208930000000004"
+    opcValue: "8e27b6af0e692e750f32667a3b14605d"
+    plmnID: "20893"
+    sequenceNumber: "16f3b3f70fc2"
+    permanentKeyValue: "8baf473f2f8fd09487cccbd7097c6862"
+    msisdn: "0900000002"
+    sst: 2
+    sd: "010204"
+    uplink: "300 Mbps"
+    downlink: "150 Mbps"
+    dnn: "internet"
+  - imsi: "208930000000005"
+    opcValue: "8e27b6af0e692e750f32667a3b14605d"
+    plmnID: "20893"
+    sequenceNumber: "16f3b3f70fc2"
+    permanentKeyValue: "8baf473f2f8fd09487cccbd7097c6862"
+    msisdn: "0900000003"
+    sst: 1
+    sd: "010203"
+    uplink: "500 Mbps"
+    downlink: "250 Mbps"
+    dnn: "internet"
