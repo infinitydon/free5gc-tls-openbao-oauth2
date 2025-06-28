@@ -4,18 +4,23 @@ metadata:
   name: free5gc-root-ca
   namespace: telco
 spec:
-  commonName: "free5GC Root CA"
+  commonName: "root-ca.free5gc.local"
   isCA: true
   secretName: free5gc-root-ca-secret
-  duration: 8760h # 1 year
-  renewBefore: 720h # 30 days
+  duration: 8760h
+  renewBefore: 720h
   subject:
-    organizationalUnits: ["free5GC"]
+    organizationalUnits: ["free5GC Root CA"]
     organizations: ["free5GC Project"]
   privateKey:
     algorithm: RSA
-    size: 4096
+    size: 2048
+  usages:
+    - cert sign
+    - crl sign
+    - digital signature
+    - key encipherment
   issuerRef:
-    name: openbao-root-ca
+    name: openbao-csr-signer
     kind: ClusterIssuer
     group: cert-manager.io

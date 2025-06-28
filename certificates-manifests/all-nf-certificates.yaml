@@ -28,8 +28,9 @@ spec:
     - server auth
     - client auth
   issuerRef:
-    name: openbao-intermediate-ca
+    name: openbao-csr-signer
     kind: ClusterIssuer
+    group: cert-manager.io
 ---    
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -46,8 +47,9 @@ spec:
   duration: 2160h
   renewBefore: 720h
   issuerRef:
-    name: openbao-intermediate-ca
+    name: openbao-csr-signer
     kind: ClusterIssuer
+    group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -64,8 +66,9 @@ spec:
   duration: 2160h
   renewBefore: 720h
   issuerRef:
-    name: openbao-intermediate-ca
+    name: openbao-csr-signer
     kind: ClusterIssuer
+    group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -82,8 +85,9 @@ spec:
   duration: 2160h
   renewBefore: 720h
   issuerRef:
-    name: openbao-intermediate-ca
+    name: openbao-csr-signer
     kind: ClusterIssuer
+    group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -100,8 +104,9 @@ spec:
   duration: 2160h
   renewBefore: 720h
   issuerRef:
-    name: openbao-intermediate-ca
+    name: openbao-csr-signer
     kind: ClusterIssuer
+    group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -118,8 +123,9 @@ spec:
   duration: 2160h
   renewBefore: 720h
   issuerRef:
-    name: openbao-intermediate-ca
+    name: openbao-csr-signer
     kind: ClusterIssuer
+    group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -136,5 +142,6 @@ spec:
   duration: 2160h
   renewBefore: 720h
   issuerRef:
-    name: openbao-intermediate-ca
+    name: openbao-csr-signer
     kind: ClusterIssuer
+    group: cert-manager.io
