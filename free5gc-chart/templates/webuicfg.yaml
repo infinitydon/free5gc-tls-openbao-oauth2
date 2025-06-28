@@ -31,7 +31,7 @@ data:
         cert:
           pem: cert/chf.pem
           key: cert/chf.key        
-      logger: # log output setting
-        enable: true # true or false
-        level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
-        reportCaller: false # enable the caller report or not, value: true or false 
+    logger: # log output setting
+      enable: true # true or false
+      level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+      reportCaller: false # enable the caller report or not, value: true or false 
