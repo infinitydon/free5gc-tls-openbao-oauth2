@@ -43,10 +43,6 @@ spec:
     spec:   
       serviceAccountName: {{ .Release.Name }}-k8s-wait-for
       initContainers:
-      - name: awsipmgmt
-        image: "{{ .Values.awsipmgmt.repository }}:{{ .Values.awsipmgmt.tag }}"
-        imagePullPolicy: {{ .Values.awsipmgmt.pullPolicy }}
-        args: [/bin/sh, -c, '/app/script.sh initContainers']
       - name: wait-for-amf
         image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
         imagePullPolicy: {{ .Values.k8swait.pullPolicy }}

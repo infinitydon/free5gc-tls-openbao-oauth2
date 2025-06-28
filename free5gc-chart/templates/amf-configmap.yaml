@@ -17,7 +17,7 @@ data:
       ngapPort: 38412 # the SCTP port listened by NGAP
       sbi: # Service-based interface information
         scheme: https # the protocol for sbi (http or https)
-        registerIPv4: {{ .Release.Name }}-amf.{{ .Release.Namespace }} # IP used to register to NRF
+        registerIPv4: amf.telco.svc.cluster.local
         bindingIPv4: 0.0.0.0  # IP used to bind the service
         port: 8000 # port used to bind the service
         tls: # the local path of TLS key
@@ -49,7 +49,7 @@ data:
               sd: {{ .Values.slicing.sd }} # Slice Differentiator (3 bytes hex string, range: 000000~FFFFFF)
       supportDnnList:  # the DNN (Data Network Name) list supported by this AMF
         - {{ .Values.dnn }}
-      nrfUri: http://{{ .Release.Name }}-nrf.{{ .Release.Namespace }}:8000 # a valid URI of NRF
+      nrfUri: https://nrf.telco.svc.cluster.local:8000 # a valid URI of NRF
       nrfCertPem: /etc/ssl/nrf/tls.crt
       security:  # NAS security parameters
         integrityOrder: # the priority of integrity algorithms

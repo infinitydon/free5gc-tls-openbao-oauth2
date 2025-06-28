@@ -21,11 +21,7 @@ spec:
         app: ueransim-ue
     spec:   
       serviceAccountName: {{ .Release.Name }}-k8s-wait-for
-      initContainers:
-      - name: awsipmgmt
-        image: "{{ .Values.awsipmgmt.repository }}:{{ .Values.awsipmgmt.tag }}"
-        imagePullPolicy: {{ .Values.awsipmgmt.pullPolicy }}
-        args: [/bin/sh, -c, '/app/script.sh initContainers']     
+      initContainers:    
       - name: wait-for-gnb
         image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
         imagePullPolicy: {{ .Values.k8swait.pullPolicy }}

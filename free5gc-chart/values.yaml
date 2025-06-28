@@ -134,10 +134,10 @@ upf:
     multusNetworkMask: "24"  
 
 multus:
-  n2dev: "ens6"
-  n3dev: "ens7"
-  n4dev: "ens8"
-  n6dev: "ens9"
+  n2dev: "ens19"
+  n3dev: "ens20"
+  n4dev: "ens21"
+  n6dev: "ens21"
 
 subprov:
   enabled: true

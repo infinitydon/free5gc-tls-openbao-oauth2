@@ -14,8 +14,8 @@ data:
     configuration:
       nssfName: NSSF # the name of this NSSF
       sbi: # Service-based interface information
-        scheme: http # the protocol for sbi (http or https)
-        registerIPv4: {{ .Release.Name }}-nssf.{{ .Release.Namespace }} # IP used to register to NRF
+        scheme: https # the protocol for sbi (http or https)
+        registerIPv4: nssf.telco.svc.cluster.local
         bindingIPv4: 0.0.0.0  # IP used to bind the service
         port: 8000 # Port used to bind the service
         tls: # the local path of TLS key
@@ -24,7 +24,7 @@ data:
       serviceNameList: # the SBI services provided by this SMF, refer to TS 29.531
         - nnssf-nsselection # Nnssf_NSSelection service
         - nnssf-nssaiavailability # Nnssf_NSSAIAvailability service
-      nrfUri: http://{{ .Release.Name }}-nrf.{{ .Release.Namespace }}:8000 # a valid URI of NRF
+      nrfUri: https://nrf.telco.svc.cluster.local:8000 # a valid URI of NRF
       nrfCertPem: /etc/ssl/nrf/tls.crt
       supportedPlmnList: # the PLMNs (Public land mobile network) list supported by this NSSF
         - mcc: {{ .Values.plmn.mcc }} # Mobile Country Code (3 digits string, digit: 0~9)
