@@ -22,6 +22,7 @@ spec:
   privateKey:
     algorithm: RSA
     size: 2048
+    rotationPolicy: Always
   usages:
     - digital signature
     - key encipherment
@@ -46,6 +47,18 @@ spec:
   secretName: amf-tls-secret
   duration: 2160h
   renewBefore: 720h
+  subject:
+    organizationalUnits: ["free5GC AMF"]
+    organizations: ["free5GC Project"]
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
   issuerRef:
     name: openbao-csr-signer
     kind: ClusterIssuer
@@ -65,6 +78,18 @@ spec:
   secretName: smf-tls-secret
   duration: 2160h
   renewBefore: 720h
+  subject:
+    organizationalUnits: ["free5GC SMF"]
+    organizations: ["free5GC Project"]
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
   issuerRef:
     name: openbao-csr-signer
     kind: ClusterIssuer
@@ -84,6 +109,18 @@ spec:
   secretName: udm-tls-secret
   duration: 2160h
   renewBefore: 720h
+  subject:
+    organizationalUnits: ["free5GC UDM"]
+    organizations: ["free5GC Project"]
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
   issuerRef:
     name: openbao-csr-signer
     kind: ClusterIssuer
@@ -103,6 +140,18 @@ spec:
   secretName: udr-tls-secret
   duration: 2160h
   renewBefore: 720h
+  subject:
+    organizationalUnits: ["free5GC UDR"]
+    organizations: ["free5GC Project"]
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
   issuerRef:
     name: openbao-csr-signer
     kind: ClusterIssuer
@@ -122,6 +171,18 @@ spec:
   secretName: pcf-tls-secret
   duration: 2160h
   renewBefore: 720h
+  subject:
+    organizationalUnits: ["free5GC PCF"]
+    organizations: ["free5GC Project"]
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
   issuerRef:
     name: openbao-csr-signer
     kind: ClusterIssuer
@@ -141,6 +202,18 @@ spec:
   secretName: ausf-tls-secret
   duration: 2160h
   renewBefore: 720h
+  subject:
+    organizationalUnits: ["free5GC AUSF"]
+    organizations: ["free5GC Project"]
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
   issuerRef:
     name: openbao-csr-signer
     kind: ClusterIssuer
@@ -160,6 +233,18 @@ spec:
   secretName: nssf-tls-secret
   duration: 2160h
   renewBefore: 720h
+  subject:
+    organizationalUnits: ["free5GC NSSF"]
+    organizations: ["free5GC Project"]
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
   issuerRef:
     name: openbao-csr-signer
     kind: ClusterIssuer
