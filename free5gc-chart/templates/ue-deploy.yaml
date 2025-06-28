@@ -1,0 +1,58 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ueransim-ue
+  labels:
+    app: ueransim-ue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ueransim-ue
+  template:
+    metadata:
+      annotations:
+         k8s.v1.cni.cncf.io/networks: '[
+                 { "name": "{{ .Release.Name }}-core-n2-nad",
+                   "ips": [ {{- cat .Values.ue.n1.multusIP "/" .Values.ue.n1.multusNetworkMask | nospace | quote }} ] }
+         ]'    
+      labels:
+        mode: simulator
+        app: ueransim-ue
+    spec:   
+      serviceAccountName: {{ .Release.Name }}-k8s-wait-for
+      initContainers:
+      - name: awsipmgmt
+        image: "{{ .Values.awsipmgmt.repository }}:{{ .Values.awsipmgmt.tag }}"
+        imagePullPolicy: {{ .Values.awsipmgmt.pullPolicy }}
+        args: [/bin/sh, -c, '/app/script.sh initContainers']     
+      - name: wait-for-gnb
+        image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
+        imagePullPolicy: {{ .Values.k8swait.pullPolicy }}
+        args:
+          - "pod"
+          - "-lapp=ueransim-gnb"
+      - name: wait-for-webconsole
+        image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
+        imagePullPolicy: {{ .Values.k8swait.pullPolicy }}
+        args:
+          - "pod"
+          - "-lepc-mode=webui"          
+      containers:
+      - name: ue
+        image: "{{ .Values.ueransim.repository }}:{{ .Values.ueransim.tag }}"
+        imagePullPolicy: {{ .Values.ueransim.pullPolicy }}        
+        command: ["/bin/sh", "-c"]
+        args: 
+        - sleep 10;
+          ./nr-ue -c free5gc-ue.yaml
+        securityContext:
+          privileged: true        
+        volumeMounts:
+        - name: ueransim-ue-config
+          mountPath: /UERANSIM/build/free5gc-ue.yaml
+          subPath: free5gc-ue.yaml
+      volumes:
+        - name: ueransim-ue-config
+          configMap:
+            name: {{ .Release.Name }}-ueransim-config

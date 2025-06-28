@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-amf
+  labels:
+    epc-mode: amf
+spec:
+  selector:
+    epc-mode: amf
+  ports:
+    - name: sbi  
+      protocol: TCP
+      port: 8000   
+      targetPort: 8000
+    - name: ngap
+      protocol: SCTP
+      port: 38412
+      targetPort: 38412        
+---  
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-amf-deployment
+  labels:
+    epc-mode: amf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: amf
+  template:
+    metadata:
+      annotations:
+         k8s.v1.cni.cncf.io/networks: '[
+                 { "name": "{{ .Release.Name }}-core-n2-nad",
+                    "interface": "n2",
+                   "ips": [ {{- cat .Values.amf.n2.multusIP "/" .Values.amf.n2.multusNetworkMask | nospace | quote }} ] }                   
+         ]'    
+      labels:
+        epc-mode: amf
+        epc-prom: enabled
+    spec:   
+      serviceAccountName: {{ .Release.Name }}-k8s-wait-for
+      initContainers:
+      - name: wait-for-nrf
+        image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
+        imagePullPolicy: {{ .Values.k8swait.pullPolicy }}
+        args:
+          - "pod"
+          - "-lepc-mode=nrf"          
+      containers:
+        - name: amf
+          image: "{{ .Values.amf.image.repository }}:{{ .Values.amf.image.tag }}"
+          imagePullPolicy: {{ .Values.amf.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+          - ./amf -c config/amfcfg.yaml;
+          env:
+            - name: GIN_MODE
+              value: release          
+          securityContext:
+             capabilities:
+               add:
+               - NET_ADMIN
+          volumeMounts:
+          - name: {{ .Release.Name }}-amf-config
+            mountPath: /free5gc/config/amfcfg.yaml
+            subPath: "amfcfg.yaml"
+          - name: amf-tls-certs
+            mountPath: /etc/ssl/certs
+            readOnly: true
+          - name: amf-tls-key
+            mountPath: /etc/ssl/private
+            readOnly: true
+          - name: nrf-cert
+            mountPath: /etc/ssl/nrf
+            readOnly: true
+      volumes:
+        - name: {{ .Release.Name }}-amf-config
+          configMap:
+            name: {{ .Release.Name }}-amf-config
+        - name: amf-tls-certs
+          secret:
+            secretName: amf-tls-secret
+            items:
+            - key: tls.crt
+              path: tls.crt
+              mode: 0644
+        - name: amf-tls-key
+          secret:
+            secretName: amf-tls-secret
+            items:
+            - key: tls.key
+              path: tls.key
+              mode: 0600
+        - name: nrf-cert
+          secret:
+            secretName: nrf-tls-secret
+            items:
+            - key: tls.crt
+              path: tls.crt
+              mode: 0644

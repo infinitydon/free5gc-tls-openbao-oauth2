@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-smf-config
+  labels:
+    epc-mode: smf
+data:
+  smfcfg.yaml: |
+    info:
+      version: 1.0.7
+      description: SMF initial local configuration
+
+    configuration:
+      smfName: SMF
+      sbi:
+        scheme: http
+        registerIPv4: {{ .Release.Name }}-smf.{{ .Release.Namespace }}
+        bindingIPv4: 0.0.0.0
+        port: 8000
+        tls: # the local path of TLS key
+          pem: /etc/ssl/certs/tls.crt
+          key: /etc/ssl/private/tls.key
+      serviceNameList:
+        - nsmf-pdusession
+        - nsmf-event-exposure
+        - nsmf-oam
+      snssaiInfos:
+        - sNssai:
+            sst: {{ .Values.slicing.sst }}
+            sd: {{ .Values.slicing.sd }}
+          dnnInfos:
+            - dnn: {{ .Values.dnn }}
+              dns:
+                ipv4: 8.8.8.8
+                ipv6: 2001:4860:4860::8888
+      plmnList:
+        - mcc: {{ .Values.plmn.mcc }}
+          mnc: {{ .Values.plmn.mnc }}
+      locality: area1
+      pfcp:
+        nodeID: {{ .Values.smf.n4.multusIP }}
+        listenAddr: {{ .Values.smf.n4.multusIP }}
+        externalAddr: {{ .Values.smf.n4.multusIP }}
+        assocFailAlertInterval: 10s
+        assocFailRetryInterval: 30s
+        heartbeatInterval: 10s        
+      userplaneInformation:
+        upNodes:
+          gNB1:
+            type: AN
+          UPF1:
+            type: UPF
+            nodeID: {{ .Values.upf.n4.multusIP }}
+            addr: {{ .Values.upf.n4.multusIP }}
+            sNssaiUpfInfos:
+              - sNssai:
+                  sst: {{ .Values.slicing.sst }}
+                  sd: {{ .Values.slicing.sd }}
+                dnnUpfInfoList:
+                  - dnn: {{ .Values.dnn }}
+                    pools:
+                      - cidr: {{ .Values.ueIPpool1 }}
+            interfaces:
+              - interfaceType: N3
+                endpoints:
+                  - {{ .Values.upf.n3.multusIP }}
+                networkInstances:
+                  - {{ .Values.dnn }}
+        links:
+          - A: gNB1
+            B: UPF1
+      t3591:
+        enable: true
+        expireTime: 16s
+        maxRetryTimes: 3
+      t3592:
+        enable: true
+        expireTime: 16s
+        maxRetryTimes: 3
+      nrfUri: http://{{ .Release.Name }}-nrf.{{ .Release.Namespace }}:8000
+      nrfCertPem: /etc/ssl/nrf/tls.crt
+
+    logger:
+      enable: true
+      level: info
+      reportCaller: false
+
+  uerouting.yaml: |
+    info:
+      version: 1.0.7
+      description: Routing information for UE
+
+    ueRoutingInfo:
+      UE1:
+        members:
+        - imsi-{{ .Values.ue.imsi }}
+        topology:
+          - A: gNB1
+            B: UPF1
+        specificPath:
+          - dest: 192.168.7.0/24
+            path: [UPF1]
+
+    routeProfile:
+      MEC1:
+        forwardingPolicyID: 10
+
+    pfdDataForApp:
+      - applicationId: edge
+        pfds:
+          - pfdID: pfd1
+            flowDescriptions:
+              - permit out ip from 10.60.0.1 8080 to any

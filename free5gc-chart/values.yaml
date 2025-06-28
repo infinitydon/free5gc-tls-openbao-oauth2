@@ -1,0 +1,163 @@
+# Default values for free5gc-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+awsipmgmt:
+  repository: public.ecr.aws/r8l3e1z0/aws-ip-manager
+  tag: v0.1
+  pullPolicy: IfNotPresent
+
+dnn: "internet"
+
+ueIPpool1: "10.63.0.0/16"
+ueIPpool2: "10.64.0.0/16"
+
+plmn:
+  mcc: 208
+  mnc: 93
+  tac: '000001'
+
+slicing:
+  sst: 1
+  sd: 112233
+
+webui:
+  image:
+    repository: free5gc/webui
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+
+mongodb:
+  image:
+    repository: mongo
+    pullPolicy: IfNotPresent
+    tag: "6.0.1"
+
+k8swait:
+  repository: groundnuty/k8s-wait-for #groundnuty/k8s-wait-for
+  tag: v1.6
+  pullPolicy: IfNotPresent  
+
+ueransim:
+   repository: registry.gitlab.com/infinitydon/registry/ueransim
+   pullPolicy: IfNotPresent #Always
+   tag: "v3.2.6" 
+
+amf:
+  image:
+    repository: free5gc/amf
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+  n2:
+    multusIP: "10.100.50.11"
+    multusNetworkMask: "24"
+
+ausf:
+  image:
+    repository: free5gc/ausf
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+
+udm:
+  image:
+    repository: free5gc/udm
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+    
+udr:
+  image:
+    repository: free5gc/udr
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+    
+nrf:
+  image:
+    repository: free5gc/nrf
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+
+nssf:
+  image:
+    repository: free5gc/nssf
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+
+pcf:
+  image:
+    repository: free5gc/pcf
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+    
+ue:
+  imsi: "208930000000003"
+  imei: "356938035643803"
+  imeiSv: "4370816125816151"
+  sst: "0x01"
+  sd: "0x112233"
+  op: "8e27b6af0e692e750f32667a3b14605d"
+  secKey: "8baf473f2f8fd09487cccbd7097c6862"
+  n1:
+    multusIP: "10.100.50.16"
+    multusNetworkMask: "24"
+
+gnb:
+  amfPort: "38412" 
+  n2:
+    multusIP: "10.100.50.15"
+    multusNetworkMask: "24"
+  n3:
+    multusIP: "10.100.51.15"
+    multusNetworkMask: "24"
+
+smf:
+  image:
+    repository: free5gc/smf
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+  n4:
+    multusIP: "10.100.52.12"
+    multusNetworkMask: "24" 
+
+upf:
+  image:
+    repository: free5gc/upf
+    pullPolicy: IfNotPresent
+    tag: v4.0.0
+  n3:
+    multusIP: "10.100.51.13"
+    multusNetworkMask: "24"
+  n4:
+    multusIP: "10.100.52.13"
+    multusNetworkMask: "24"
+  n6:
+    multusIP: "10.100.100.13"
+    multusNetworkMask: "24"  
+
+multus:
+  n2dev: "ens6"
+  n3dev: "ens7"
+  n4dev: "ens8"
+  n6dev: "ens9"
+
+subprov:
+  enabled: true
+  name: subprov
+  startImsi: 208930000000003
+  startMsisdn: 9000000003
+  subscriberCount: 500
+  plmnid: 20893
+  webuiService: "free5gc-webui"
+  webuiPort: 5000
+  container:
+    name: subprov
+    image: badouralix/curl-jq
+  volume:
+    name: config-volume
+    mountPath: /etc/config
+    jsonFile: sub-data.json
+  envName: NODE_IP
+  portNumber: 30500
+  restartPolicy: Never
+  fieldPath: status.hostIP
+  token: admin
+  configMapName: sub-data

@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-gnb-svc
+  labels:
+    app: ueransim-gnb
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: gnb-sctp
+      port: 38412
+      targetPort: 38412
+      protocol: SCTP
+  selector:
+    app: ueransim-gnb
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ueransim-gnb  
+  labels:
+    app: ueransim-gnb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ueransim-gnb
+  template:
+    metadata:
+      annotations:
+         k8s.v1.cni.cncf.io/networks: '[
+                 { "name": "{{ .Release.Name }}-core-n2-nad",
+                    "interface": "n2",
+                   "ips": [ {{- cat .Values.gnb.n2.multusIP "/" .Values.gnb.n2.multusNetworkMask | nospace | quote }} ] },
+                 { "name": "{{ .Release.Name }}-core-n3-nad",
+                    "interface": "n3",
+                   "ips": [ {{- cat .Values.gnb.n3.multusIP "/" .Values.gnb.n3.multusNetworkMask | nospace | quote }} ] }                                    
+         ]'    
+      labels:
+        mode: simulator
+        app: ueransim-gnb
+    spec:   
+      serviceAccountName: {{ .Release.Name }}-k8s-wait-for
+      initContainers:
+      - name: awsipmgmt
+        image: "{{ .Values.awsipmgmt.repository }}:{{ .Values.awsipmgmt.tag }}"
+        imagePullPolicy: {{ .Values.awsipmgmt.pullPolicy }}
+        args: [/bin/sh, -c, '/app/script.sh initContainers']
+      - name: wait-for-amf
+        image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
+        imagePullPolicy: {{ .Values.k8swait.pullPolicy }}
+        args:
+          - "pod"
+          - "-lepc-mode=amf"         
+      containers:
+      - name: ueransim-gnb
+        image: "{{ .Values.ueransim.repository }}:{{ .Values.ueransim.tag }}"
+        imagePullPolicy: {{ .Values.ueransim.pullPolicy }}        
+        command: ["/bin/sh", "-c"]
+        args:
+        - sleep 5;   
+          ./nr-gnb -c free5gc-gnb.yaml;   
+        securityContext:
+          privileged: true        
+        volumeMounts:
+        - name: ueransim-gnb-config
+          mountPath: /UERANSIM/build/free5gc-gnb.yaml
+          subPath: free5gc-gnb.yaml
+      volumes:
+        - name: ueransim-gnb-config
+          configMap:
+            name: {{ .Release.Name }}-ueransim-config

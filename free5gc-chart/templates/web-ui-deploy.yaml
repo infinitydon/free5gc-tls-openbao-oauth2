@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gc-webui
+  labels:
+    epc-mode: webui
+spec:
+  type: NodePort
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 30500
+  selector:
+    epc-mode: webui
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-webui 
+  labels:
+    epc-mode: webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: webui
+  template:
+    metadata:
+      labels:
+        epc-mode: webui
+    spec:
+      serviceAccountName: {{ .Release.Name }}-k8s-wait-for
+      initContainers:      
+      - name: wait-for-mongo
+        image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
+        imagePullPolicy: {{ .Values.k8swait.pullPolicy }}
+        args:
+          - "pod"
+          - "-lapp=mongodb"     
+      containers:
+      - name: webui
+        imagePullPolicy: {{ .Values.webui.image.pullPolicy }}
+        image: "{{ .Values.webui.image.repository }}:{{ .Values.webui.image.tag }}"       
+        command: ["/bin/sh", "-c"]
+        args:
+        - ./webconsole -c config/webuicfg.yaml;
+        env:
+          - name: GIN_MODE
+            value: release 
+        volumeMounts:
+        - name: {{ .Release.Name }}-webui-config
+          mountPath: /free5gc/webconsole/config/webuicfg.yaml
+          subPath: "webuicfg.yaml"
+      volumes:
+        - name: {{ .Release.Name }}-webui-config
+          configMap:
+            name: {{ .Release.Name }}-webui-config

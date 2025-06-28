@@ -1,0 +1,21 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: free5gc-root-ca
+  namespace: telco
+spec:
+  commonName: "free5GC Root CA"
+  isCA: true
+  secretName: free5gc-root-ca-secret
+  duration: 8760h # 1 year
+  renewBefore: 720h # 30 days
+  subject:
+    organizationalUnits: ["free5GC"]
+    organizations: ["free5GC Project"]
+  privateKey:
+    algorithm: RSA
+    size: 4096
+  issuerRef:
+    name: openbao-root-ca
+    kind: ClusterIssuer
+    group: cert-manager.io

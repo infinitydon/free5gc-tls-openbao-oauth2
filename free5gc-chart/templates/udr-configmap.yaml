@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-udr-config
+  labels:
+    epc-mode: udr
+data:
+  udrcfg.yaml: |
+    info:
+      version: 1.1.0
+      description: UDR initial local configuration
+
+    configuration:
+      sbi: # Service-based interface information
+        scheme: http # the protocol for sbi (http or https)
+        registerIPv4: {{ .Release.Name }}-udr.{{ .Release.Namespace }} # IP used to register to NRF
+        bindingIPv4: 0.0.0.0  # IP used to bind the service
+        port: 8000 # port used to bind the service
+        tls: # the local path of TLS key
+          pem: /etc/ssl/certs/tls.crt
+          key: /etc/ssl/private/tls.key
+      dbConnectorType: mongodb 
+      mongodb:
+        name: free5gc # Database name in MongoDB
+        url: mongodb://{{ .Release.Name }}-mongodb-svc:27017 # URL of MongoDB
+      nrfUri: http://{{ .Release.Name }}-nrf.{{ .Release.Namespace }}:8000 # a valid URI of NRF
+      nrfCertPem: /etc/ssl/nrf/tls.crt
+
+    logger: # log output setting
+      enable: true # true or false
+      level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+      reportCaller: false # enable the caller report or not, value: true or false      

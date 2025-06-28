@@ -1,0 +1,59 @@
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition 
+metadata:
+  name: {{ .Release.Name }}-core-n2-nad
+spec:
+  config: '{
+    "cniVersion": "0.3.1",
+    "type": "macvlan",
+    "master": "{{ .Values.multus.n2dev }}",
+    "mode": "bridge",
+    "ipam": {
+      "type": "static"
+    }
+  }'
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition 
+metadata:
+  name: {{ .Release.Name }}-core-n3-nad
+spec:
+  config: '{
+    "cniVersion": "0.3.1",
+    "type": "macvlan",
+    "master": "{{ .Values.multus.n3dev }}",
+    "mode": "bridge",
+    "ipam": {
+      "type": "static"
+    }
+  }'
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition 
+metadata:
+  name: {{ .Release.Name }}-core-n4-nad
+spec:
+  config: '{
+    "cniVersion": "0.3.1",
+    "type": "macvlan",
+    "master": "{{ .Values.multus.n4dev }}",
+    "mode": "bridge",
+    "ipam": {
+      "type": "static"
+    }
+  }'
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition 
+metadata:
+  name: {{ .Release.Name }}-core-n6-nad
+spec:
+  config: '{
+    "cniVersion": "0.3.1",
+    "type": "macvlan",
+    "master": "{{ .Values.multus.n6dev }}",
+    "mode": "bridge",
+    "ipam": {
+      "type": "static"
+    }
+  }'  

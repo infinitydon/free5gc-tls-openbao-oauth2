@@ -1,0 +1,52 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-upf-deployment 
+  labels:
+    epc-mode: upf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: upf
+  template:
+    metadata:
+      annotations:
+         k8s.v1.cni.cncf.io/networks: '[
+                 { "name": "{{ .Release.Name }}-core-n3-nad",
+                    "interface": "n3",
+                   "ips": [ {{- cat .Values.upf.n3.multusIP "/" .Values.upf.n3.multusNetworkMask | nospace | quote }} ] },
+                 { "name": "{{ .Release.Name }}-core-n4-nad",
+                    "interface": "n4",
+                   "ips": [ {{- cat .Values.upf.n4.multusIP "/" .Values.upf.n4.multusNetworkMask | nospace | quote }} ] },                   
+                 { "name": "{{ .Release.Name }}-core-n6-nad",
+                    "interface": "n6",
+                   "ips": [ {{- cat .Values.upf.n6.multusIP "/" .Values.upf.n6.multusNetworkMask | nospace | quote }} ] }                   
+         ]'      
+      labels:
+        epc-mode: upf
+        epc-prom: enabled
+    spec:   
+      containers:
+      - name: upf
+        image: "{{ .Values.upf.image.repository }}:{{ .Values.upf.image.tag }}"
+        imagePullPolicy: {{ .Values.upf.image.pullPolicy }}     
+        command: ["/bin/sh", "-c"]
+        args:
+        - echo 1 > /proc/sys/net/ipv4/ip_forward;
+          iptables -t nat -A POSTROUTING -s {{ .Values.ueIPpool }} -d {{ cat .Values.upf.n6.multusNetworkAddress "/" .Values.upf.n6.multusNetworkMask | nospace }} -j ACCEPT;
+          iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE;
+          ./upf -c config/upfcfg.yaml;
+        env:
+          - name: GIN_MODE
+            value: release 
+        volumeMounts:
+        - name: {{ .Release.Name }}-upf-config
+          mountPath: /free5gc/config/upfcfg.yaml
+          subPath: "upfcfg.yaml"                 
+        securityContext:
+          privileged: true           
+      volumes:
+        - name: {{ .Release.Name }}-upf-config
+          configMap:
+            name: {{ .Release.Name }}-upf-config                

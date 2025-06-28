@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-ausf
+  labels:
+    epc-mode: ausf
+spec:
+  selector:
+    epc-mode: ausf
+  ports:
+    - name: sbi
+      protocol: TCP
+      port: 8000   
+      targetPort: 8000
+---  
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-ausf-deployment
+  labels:
+    epc-mode: ausf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: ausf
+  template:
+    metadata:    
+      labels:
+        epc-mode: ausf
+    spec:
+      serviceAccountName: {{ .Release.Name }}-k8s-wait-for
+      initContainers:
+      - name: wait-for-nrf
+        image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
+        imagePullPolicy: {{ .Values.k8swait.pullPolicy }}
+        args:
+          - "pod"
+          - "-lepc-mode=nrf"             
+      containers:
+        - name: ausf
+          image: "{{ .Values.ausf.image.repository }}:{{ .Values.ausf.image.tag }}"
+          imagePullPolicy: {{ .Values.ausf.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+          - ./ausf -c config/ausfcfg.yaml;
+          env:
+            - name: GIN_MODE
+              value: release 
+          volumeMounts:
+          - name: {{ .Release.Name }}-ausf-config
+            mountPath: /free5gc/config/ausfcfg.yaml
+            subPath: "ausfcfg.yaml"
+          - name: ausf-tls-certs
+            mountPath: /etc/ssl/certs
+            readOnly: true
+          - name: ausf-tls-key
+            mountPath: /etc/ssl/private
+            readOnly: true
+          - name: nrf-cert
+            mountPath: /etc/ssl/nrf
+            readOnly: true
+      volumes:
+        - name: {{ .Release.Name }}-ausf-config
+          configMap:
+            name: {{ .Release.Name }}-ausf-config
+        - name: ausf-tls-certs
+          secret:
+            secretName: ausf-tls-secret
+            items:
+            - key: tls.crt
+              path: tls.crt
+              mode: 0644
+        - name: ausf-tls-key
+          secret:
+            secretName: ausf-tls-secret
+            items:
+            - key: tls.key
+              path: tls.key
+              mode: 0600
+        - name: nrf-cert
+          secret:
+            secretName: nrf-tls-secret
+            items:
+            - key: tls.crt
+              path: tls.crt
+              mode: 0644

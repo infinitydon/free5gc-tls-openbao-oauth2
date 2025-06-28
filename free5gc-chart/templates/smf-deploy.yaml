@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-smf
+  labels:
+    epc-mode: smf
+spec:
+  selector:
+    epc-mode: smf
+  ports:
+    - protocol: TCP
+      port: 8000 
+      targetPort: 8000  
+---  
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-smf-deployment 
+  labels:
+    epc-mode: smf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      epc-mode: smf
+  template:
+    metadata:
+      annotations:
+         k8s.v1.cni.cncf.io/networks: '[
+                 { "name": "{{ .Release.Name }}-core-n4-nad",
+                    "interface": "n4",
+                   "ips": [ {{- cat .Values.smf.n4.multusIP "/" .Values.smf.n4.multusNetworkMask | nospace | quote }} ] }                   
+         ]'      
+      labels:
+        epc-mode: smf
+        epc-prom: enabled
+    spec:   
+      serviceAccountName: {{ .Release.Name }}-k8s-wait-for
+      initContainers:
+      - name: wait-for-upf
+        image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
+        imagePullPolicy: {{ .Values.k8swait.pullPolicy }}
+        args:
+          - "pod"
+          - "-lepc-mode=upf"      
+      - name: wait-for-nrf
+        image: "{{ .Values.k8swait.repository }}:{{ .Values.k8swait.tag }}"
+        imagePullPolicy: {{ .Values.k8swait.pullPolicy }}
+        args:
+          - "pod"
+          - "-lepc-mode=nrf"
+      containers:
+      - name: smf
+        image: "{{ .Values.smf.image.repository }}:{{ .Values.smf.image.tag }}"
+        imagePullPolicy: {{ .Values.smf.image.pullPolicy }}     
+        command: ["/bin/sh", "-c"]
+        args:
+        - ./smf -c config/smfcfg.yaml -u config/uerouting.yaml;
+        env:
+          - name: GIN_MODE
+            value: release 
+        volumeMounts:
+        - name: {{ .Release.Name }}-smf-config
+          mountPath: /free5gc/config/smfcfg.yaml
+          subPath: "smfcfg.yaml"
+        - name: {{ .Release.Name }}-smf-config
+          mountPath: /free5gc/config/uerouting.yaml
+          subPath: "uerouting.yaml"
+        - name: smf-tls-certs
+          mountPath: /etc/ssl/certs
+          readOnly: true
+        - name: smf-tls-key
+          mountPath: /etc/ssl/private
+          readOnly: true
+        - name: nrf-cert
+          mountPath: /etc/ssl/nrf
+          readOnly: true
+        securityContext:
+           capabilities:
+             add:
+             - NET_ADMIN
+      volumes:
+        - name: {{ .Release.Name }}-smf-config
+          configMap:
+            name: {{ .Release.Name }}-smf-config
+        - name: smf-tls-certs
+          secret:
+            secretName: smf-tls-secret
+            items:
+            - key: tls.crt
+              path: tls.crt
+              mode: 0644
+        - name: smf-tls-key
+          secret:
+            secretName: smf-tls-secret
+            items:
+            - key: tls.key
+              path: tls.key
+              mode: 0600
+        - name: nrf-cert
+          secret:
+            secretName: nrf-tls-secret
+            items:
+            - key: tls.crt
+              path: tls.crt
+              mode: 0644                
