@@ -145,3 +145,22 @@ spec:
     name: openbao-csr-signer
     kind: ClusterIssuer
     group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nssf-tls-cert
+  namespace: telco
+spec:
+  commonName: nssf.telco.local
+  dnsNames:
+    - nssf.telco.local
+    - nssf.telco.svc.cluster.local
+    - nssf
+  secretName: nssf-tls-secret
+  duration: 2160h
+  renewBefore: 720h
+  issuerRef:
+    name: openbao-csr-signer
+    kind: ClusterIssuer
+    group: cert-manager.io
