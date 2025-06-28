@@ -43,7 +43,7 @@ spec:
         image: "{{ .Values.webui.image.repository }}:{{ .Values.webui.image.tag }}"       
         command: ["/bin/sh", "-c"]
         args:
-        - ./webui -c config/webuicfg.yaml;
+        - ./webui -c /free5gc/webconsole/config/webuicfg.yaml;
         env:
           - name: GIN_MODE
             value: release 
