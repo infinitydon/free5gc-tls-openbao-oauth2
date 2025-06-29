@@ -1,0 +1,8 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: free5gc-ca-issuer
+  namespace: telco
+spec:
+  ca:
+    secretName: free5gc-root-ca-secret

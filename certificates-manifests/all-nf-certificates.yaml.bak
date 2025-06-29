@@ -29,8 +29,8 @@ spec:
     - server auth
     - client auth
   issuerRef:
-    name: free5gc-ca-issuer
-    kind: Issuer
+    name: openbao-csr-signer
+    kind: ClusterIssuer
     group: cert-manager.io
 ---    
 apiVersion: cert-manager.io/v1
@@ -60,8 +60,8 @@ spec:
     - server auth
     - client auth
   issuerRef:
-    name: free5gc-ca-issuer
-    kind: Issuer
+    name: openbao-csr-signer
+    kind: ClusterIssuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
@@ -91,8 +91,8 @@ spec:
     - server auth
     - client auth
   issuerRef:
-    name: free5gc-ca-issuer
-    kind: Issuer
+    name: openbao-csr-signer
+    kind: ClusterIssuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
@@ -122,8 +122,8 @@ spec:
     - server auth
     - client auth
   issuerRef:
-    name: free5gc-ca-issuer
-    kind: Issuer
+    name: openbao-csr-signer
+    kind: ClusterIssuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
@@ -153,8 +153,8 @@ spec:
     - server auth
     - client auth
   issuerRef:
-    name: free5gc-ca-issuer
-    kind: Issuer
+    name: openbao-csr-signer
+    kind: ClusterIssuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
@@ -184,8 +184,8 @@ spec:
     - server auth
     - client auth
   issuerRef:
-    name: free5gc-ca-issuer
-    kind: Issuer
+    name: openbao-csr-signer
+    kind: ClusterIssuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
@@ -215,8 +215,8 @@ spec:
     - server auth
     - client auth
   issuerRef:
-    name: free5gc-ca-issuer
-    kind: Issuer
+    name: openbao-csr-signer
+    kind: ClusterIssuer
     group: cert-manager.io
 ---
 apiVersion: cert-manager.io/v1
@@ -246,6 +246,6 @@ spec:
     - server auth
     - client auth
   issuerRef:
-    name: free5gc-ca-issuer
-    kind: Issuer
+    name: openbao-csr-signer
+    kind: ClusterIssuer
     group: cert-manager.io
