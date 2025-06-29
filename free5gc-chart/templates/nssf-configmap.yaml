@@ -42,7 +42,7 @@ data:
             sd: {{ .Values.slicing.sd }}
           nsiInformationList: # Information list of this NSI
             # the NRF to be used to select the NFs/services within the selected NSI, and an optonal ID
-            - nrfId: http://{{ .Release.Name }}-nrf.{{ .Release.Namespace }}:8000/nnrf-nfm/v1/nf-instances
+            - nrfId: https://nrf.telco.svc.cluster.local:8000/nnrf-nfm/v1/nf-instances
               nsiId: 10   
       amfSetList: # List of AMF Sets that my be assigned by this NSSF
         - amfSetId: 1 # the AMF Set identifier
@@ -51,7 +51,7 @@ data:
             - 0e8831c3-6286-4689-ab27-1e2161e15cb1
             - a1fba9ba-2e39-4e22-9c74-f749da571d0d
           # URI of the NRF used to determine the list of candidate AMF(s) from the AMF Set
-          nrfAmfSet: http://{{ .Release.Name }}-nrf.{{ .Release.Namespace }}:8000/nnrf-nfm/v1/nf-instances
+          nrfAmfSet: https://nrf.telco.svc.cluster.local:8000/nnrf-nfm/v1/nf-instances
           # the Nssai availability data information per TA supported by the AMF
           supportedNssaiAvailabilityData:           
             - tai: # Tracking Area Identifier
