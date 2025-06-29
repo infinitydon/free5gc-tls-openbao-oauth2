@@ -50,7 +50,7 @@ spec:
             mountPath: /etc/ssl/private
             readOnly: true
           # Mount root CA certificate secret
-          - name: root-ca-certs
+          - name: ca-cert
             mountPath: /etc/ssl/ca
             readOnly: true
       volumes:
@@ -70,13 +70,10 @@ spec:
             - key: tls.key
               path: tls.key
               mode: 0600
-        - name: root-ca-certs
+        - name: ca-cert
           secret:
-            secretName: free5gc-root-ca-secret
+            secretName: nrf-tls-secret
             items:
-            - key: tls.crt
+            - key: ca.crt
               path: ca.crt
-            - key: tls.key
-              path: ca.key
-              mode: 0600
 
