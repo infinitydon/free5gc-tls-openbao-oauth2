@@ -1,14 +1,14 @@
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: openbao-csr-signer
+  name: openbao-free5gc
 spec:
   vault:
     server: http://openbao.openbao-system.svc.cluster.local:8200
-    path: pki_int/sign/free5gc-csr
+    path: pki_int/sign/free5gc-services
     auth:
       kubernetes:
-        role: cert-manager
         mountPath: /v1/auth/kubernetes
+        role: cert-manager
         serviceAccountRef:
           name: cert-manager

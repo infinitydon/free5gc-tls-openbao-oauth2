@@ -49,9 +49,14 @@ spec:
           - name: nrf-tls-key
             mountPath: /etc/ssl/private
             readOnly: true
-          # Mount root CA certificate secret
-          - name: ca-cert
-            mountPath: /etc/ssl/ca
+          # Root CA certificate and private key mounts (for OAuth2)
+          - name: root-ca-complete
+            mountPath: /etc/ssl/rootca/ca.crt
+            subPath: ca.crt
+            readOnly: true
+          - name: root-ca-complete
+            mountPath: /etc/ssl/rootca/ca.key
+            subPath: ca.key
             readOnly: true
       volumes:
         - name: {{ .Release.Name }}-nrf-config
@@ -70,10 +75,7 @@ spec:
             - key: tls.key
               path: tls.key
               mode: 0600
-        - name: ca-cert
+        - name: root-ca-complete
           secret:
-            secretName: nrf-tls-secret
-            items:
-            - key: ca.crt
-              path: ca.crt
-
+            secretName: free5gc-root-ca-complete
+            defaultMode: 0400
